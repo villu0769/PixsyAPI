@@ -13,7 +13,7 @@ namespace PixsyAPI.Service
 			return Convert.ToBase64String(hash);
 		}
 
-		public bool VerityPassword(string enteredPassword, string storedHash)
+		public bool VerifyPassword(string enteredPassword, string storedHash)
 		{
 			var enteredHash = HashPassword(enteredPassword);
 			return enteredHash == storedHash;

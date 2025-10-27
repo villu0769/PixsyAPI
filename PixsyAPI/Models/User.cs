@@ -10,7 +10,6 @@
 		public List<int> BoardsIds { get; set; } = new List<int>();
 		public List<int> UploadsIds { get; set; } = new List<int>();
 		public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
-		public byte[] PasswordSalt{ get; set; } = Array.Empty<byte>();
 	}
 	public enum UserRole
 	{
