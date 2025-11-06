@@ -13,7 +13,7 @@ namespace PixsyAPI.Controllers
 		// POST: api/pictures/user/{userId}
 		// Upload a new picture for a user with tags
 		[HttpPost("user/{userId}")]
-		public ActionResult<Picture> UploadPicture(int userId, [FromBody] List<string> tags)
+		public ActionResult<Picture> UploadPicture(int userId, [FromBody] List<int> tags)
 		{
 			var user = users.FirstOrDefault(u => u.UserID == userId);
 			if (user == null) return NotFound("User not found.");
@@ -22,7 +22,7 @@ namespace PixsyAPI.Controllers
 			{
 				PictureID = pictures.Count + 1,
 				UserID = userId,
-				Tags = tags ?? new List<string>()
+				TagsIds = tags ?? new List<int>()
 			};
 
 			pictures.Add(picture);

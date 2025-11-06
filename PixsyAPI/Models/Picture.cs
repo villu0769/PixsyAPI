@@ -4,6 +4,6 @@
 	{
 		public int PictureID { get; set; }
 		public int UserID { get; set; }
-		public List<string> Tags { get; set; } = new List<string>();
+		public List<int> TagsIds { get; set; } = new List<int>();
 	}
 }
