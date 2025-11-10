@@ -52,8 +52,8 @@ namespace PixsyAPI.Controllers
 			var picture = pictures.FirstOrDefault(p => p.PictureID == pictureId);
 			if (picture == null) return NotFound("Picture not found.");
 
-			if (!board.PictureIDS.Contains(pictureId))
-				board.PictureIDS.Add(pictureId);
+			if (!board.PictureIds.Contains(pictureId))
+				board.PictureIds.Add(pictureId);
 
 			return NoContent();
 		}
@@ -66,7 +66,7 @@ namespace PixsyAPI.Controllers
 			var board = boards.FirstOrDefault(b => b.BoardID == boardId);
 			if (board == null) return NotFound();
 
-			var boardPictures = pictures.Where(p => board.PictureIDS.Contains(p.PictureID)).ToList();
+			var boardPictures = pictures.Where(p => board.PictureIds.Contains(p.PictureID)).ToList();
 			return Ok(pictures);
 		}
 
