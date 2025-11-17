@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PixsyAPI.Models;
+using PixsyAPI.Data;
+using AppContext = PixsyAPI.Data.AppContext;
+using static PixsyAPI.DTOs.PictureDTO;
 
 namespace PixsyAPI.Controllers
 {
@@ -7,53 +11,60 @@ namespace PixsyAPI.Controllers
 	[Route("api/[controller]")]
 	public class PictureController : ControllerBase
 	{
-		private static readonly List<User> users;
-		private static readonly List<Picture> pictures;
+		private readonly AppContext _context;
+
+		public PictureController(AppContext context)
+		{
+			_context = context;
+		}
 
 		// POST: api/pictures/user/{userId}
-		// Upload a new picture for a user with tags
 		[HttpPost("user/{userId}")]
-		public ActionResult<Picture> UploadPicture(int userId, [FromBody] List<int> tags)
+		public async Task<ActionResult<Picture>> UploadPicture(int userId, [FromBody] UploadPictureDto dto)
 		{
-
-			var user = users.FirstOrDefault(u => u.UserID == userId);
-			if (user == null) return NotFound("User not found.");
+			var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+			if (user == null)
+				return NotFound("User not found.");
 
 			var picture = new Picture
 			{
-				PictureID = pictures.Count + 1,
 				UserID = userId,
-				TagsIds = tags ?? new List<int>()
+				TagsIds = dto.Tags ?? new List<int>()
 			};
 
-			pictures.Add(picture);
+			_context.Pictures.Add(picture);
+			await _context.SaveChangesAsync();
 
-			// Track user's uploads
 			user.UploadsIds.Add(picture.PictureID);
+			await _context.SaveChangesAsync();
 
-			return Ok(picture);  // Changed from CreatedAtAction to Ok
+			return Ok(picture);
 		}
-
 
 		// GET: api/pictures/{pictureId}
 		[HttpGet("{pictureId}")]
-		public ActionResult<Picture> GetPictureById(int pictureId)
+		public async Task<ActionResult<Picture>> GetPictureById(int pictureId)
 		{
-			var picture = pictures.FirstOrDefault(p => p.PictureID == pictureId);
-			if (picture == null) return NotFound();
+			var picture = await _context.Pictures.FindAsync(pictureId);
+
+			if (picture == null)
+				return NotFound();
 
 			return Ok(picture);
 		}
 
 		// GET: api/pictures/user/{userId}
-		// Get all pictures uploaded by a user
 		[HttpGet("user/{userId}")]
-		public ActionResult<List<Picture>> GetPicturesByUser(int userId)
+		public async Task<ActionResult<List<Picture>>> GetPicturesByUser(int userId)
 		{
-			var user = users.FirstOrDefault(u => u.UserID == userId);
-			if (user == null) return NotFound("User not found.");
+			var exists = await _context.Users.AnyAsync(u => u.UserID == userId);
 
-			var userPictures = pictures.Where(p => p.UserID == userId).ToList();
+			if (!exists)
+				return NotFound("User not found.");
+
+			var pictures = await _context.Pictures
+				.Where(p => p.UserID == userId)
+				.ToListAsync();
 
 			return Ok(pictures);
 		}

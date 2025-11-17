@@ -5,6 +5,8 @@ using PixsyAPI.Service;
 using System.Collections.Generic;
 using System.Linq;
 using static PixsyAPI.DTOs.UserDTO;
+using PixsyAPI.Data;
+using AppContext = PixsyAPI.Data.AppContext;
 
 namespace PixsyAPI.Controllers
 {
@@ -12,13 +14,19 @@ namespace PixsyAPI.Controllers
 	[Route("api/[controller]")]
 	public class UserController : ControllerBase
 	{
-		private static readonly List<User> users = new();
+		private readonly AppContext _context;
+
+		public UserController(AppContext context)
+		{
+			_context = context;
+		}
+
 		private readonly PasswordService passwordService = new();
 
 		[HttpGet("{id}")]
 		public ActionResult<UserReadDto> GetUserById(int id)
 		{
-			var user = users.FirstOrDefault(u => u.UserID == id);
+			var user = _context.Users.FirstOrDefault(u => u.UserID == id);
 			if (user == null) return NotFound();
 
 			return Ok(new UserReadDto
@@ -34,12 +42,12 @@ namespace PixsyAPI.Controllers
 		[HttpPost("register")]
 		public ActionResult<UserReadDto> Register(UserCreateDto dto)
 		{
-			if (users.Any(u => u.UserName == dto.UserName))
+			if (_context.Users.Any(u => u.UserName == dto.UserName))
 				return BadRequest("Username already exists.");
+
 
 			var user = new User
 			{
-				UserID = users.Count + 1,
 				UserName = dto.UserName,
 				DisplayName = dto.DisplayName,
 				Email = dto.Email
@@ -48,7 +56,8 @@ namespace PixsyAPI.Controllers
 			var hashed = passwordService.HashPassword(dto.Password);
 			user.PasswordHash = Convert.FromBase64String(hashed);
 
-			users.Add(user);
+			_context.Users.Add(user);
+			_context.SaveChanges();
 
 			return Ok(new UserReadDto
 			{
@@ -64,7 +73,7 @@ namespace PixsyAPI.Controllers
 		[HttpPost("login")]
 		public ActionResult<string> Login(UserLoginDto dto)
 		{
-			var user = users.FirstOrDefault(u => u.UserName == dto.UserName);
+			var user = _context.Users.FirstOrDefault(u => u.UserName == dto.UserName);
 			if (user == null) return Unauthorized("Invalid username or password.");
 
 			var storedHash = Convert.ToBase64String(user.PasswordHash);
@@ -79,10 +88,11 @@ namespace PixsyAPI.Controllers
 		[HttpDelete("{id}")]
 		public ActionResult DeleteUser(int id)
 		{
-			var user = users.FirstOrDefault(u => u.UserID == id);
+			var user = _context.Users.FirstOrDefault(u => u.UserID == id);
 			if (user == null) return NotFound();
 
-			users.Remove(user);
+			_context.Users.Remove(user);
+			_context.SaveChanges();
 			return NoContent();
 		}
 
