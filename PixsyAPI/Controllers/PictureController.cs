@@ -7,14 +7,15 @@ namespace PixsyAPI.Controllers
 	[Route("api/[controller]")]
 	public class PictureController : ControllerBase
 	{
-		private static readonly List<User> users = new();
-		private static readonly List<Picture> pictures = new();
+		private static readonly List<User> users;
+		private static readonly List<Picture> pictures;
 
 		// POST: api/pictures/user/{userId}
 		// Upload a new picture for a user with tags
 		[HttpPost("user/{userId}")]
 		public ActionResult<Picture> UploadPicture(int userId, [FromBody] List<int> tags)
 		{
+
 			var user = users.FirstOrDefault(u => u.UserID == userId);
 			if (user == null) return NotFound("User not found.");
 
