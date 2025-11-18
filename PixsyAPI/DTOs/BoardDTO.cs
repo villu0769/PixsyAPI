@@ -4,6 +4,11 @@ namespace PixsyAPI.DTOs
 {
 	public class BoardDTO
 	{
+		public class BoardCreateDto
+		{
+			public string Name { get; set; } = string.Empty;
+			public string Description { get; set; } = string.Empty;
+		}
 		public class BoardReadDto
 		{
 			public int BoardID { get; set; }

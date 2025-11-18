@@ -68,5 +68,16 @@ namespace PixsyAPI.Controllers
 
 			return Ok(pictures);
 		}
+
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeletePicture(int id)
+		{
+			var picture = _context.Pictures.FirstOrDefault(u => u.PictureID == id);
+			if (picture == null) return NotFound();
+
+			_context.Pictures.Remove(picture);
+			await _context.SaveChangesAsync();
+			return NoContent();
+		}
 	}
 }

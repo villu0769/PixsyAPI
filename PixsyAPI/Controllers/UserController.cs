@@ -40,7 +40,7 @@ namespace PixsyAPI.Controllers
 		}
 
 		[HttpPost("register")]
-		public ActionResult<UserReadDto> Register(UserCreateDto dto)
+		public async Task<ActionResult<UserReadDto>> RegisterAsync(UserCreateDto dto)
 		{
 			if (_context.Users.Any(u => u.UserName == dto.UserName))
 				return BadRequest("Username already exists.");
@@ -57,7 +57,7 @@ namespace PixsyAPI.Controllers
 			user.PasswordHash = Convert.FromBase64String(hashed);
 
 			_context.Users.Add(user);
-			_context.SaveChanges();
+			await _context.SaveChangesAsync();
 
 			return Ok(new UserReadDto
 			{
@@ -86,13 +86,13 @@ namespace PixsyAPI.Controllers
 
 		// DELETE: api/users/{id}
 		[HttpDelete("{id}")]
-		public ActionResult DeleteUser(int id)
+		public async Task<IActionResult> DeleteUser(int id)
 		{
 			var user = _context.Users.FirstOrDefault(u => u.UserID == id);
 			if (user == null) return NotFound();
 
 			_context.Users.Remove(user);
-			_context.SaveChanges();
+			await _context.SaveChangesAsync();
 			return NoContent();
 		}
 
