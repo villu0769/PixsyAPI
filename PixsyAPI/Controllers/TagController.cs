@@ -61,11 +61,19 @@ namespace PixsyAPI.Controllers
 		{
 			var tag = await _context.Tags.FindAsync(tagId);
 			if (tag == null)
+			{
 				return NotFound("Tag not found.");
+			}
+
+			foreach(var pic in _context.Pictures.Where(x=>x.TagsIds.Contains(tagId)))
+			{ 
+				pic.TagsIds.Remove(tagId); 
+				await _context.SaveChangesAsync();
+			}
 
 			_context.Tags.Remove(tag);
 			await _context.SaveChangesAsync();
-
+			
 			return NoContent();
 		}
 	}

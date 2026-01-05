@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PixsyAPI.Data;
 using PixsyAPI.Models;
+using System.Threading.Tasks;
 using static PixsyAPI.DTOs.BoardDTO;
 using AppContext = PixsyAPI.Data.AppContext;
 
@@ -60,7 +61,7 @@ namespace PixsyAPI.Controllers
 		// POST: api/boards/{boardId}/pictures/{pictureId}
 		// Add a picture to a board
 		[HttpPost("{boardId}/pictures/{pictureId}")]
-		public ActionResult AddPictureToBoard(int boardId, int pictureId)
+		public async Task<ActionResult> AddPictureToBoard(int boardId, int pictureId)
 		{
 			var board = _context.Boards.FirstOrDefault(b => b.BoardID == boardId);
 			if (board == null) return NotFound("Board not found.");
@@ -70,6 +71,7 @@ namespace PixsyAPI.Controllers
 
 			if (!board.PictureIds.Contains(pictureId))
 				board.PictureIds.Add(pictureId);
+			await _context.SaveChangesAsync();
 
 			return NoContent();
 		}
